@@ -1,0 +1,64 @@
+/* FlashQuiz shared styles — system fonts, flat colors, no shadows/blur:
+   cheap to paint on low-end phones and old projector laptops. */
+:root {
+  --bg: #f4f4f1;
+  --panel: #ffffff;
+  --ink: #111111;
+  --muted: #555555;
+  --line: #cfcfc8;
+  --accent: #0b4f8a;
+  /* Okabe-Ito palette (colorblind-safe). Every choice ALSO has a shape + letter,
+     so color is never the only cue. */
+  --c0: #0072b2; --c0-ink: #ffffff; /* A ▲ blue */
+  --c1: #e69f00; --c1-ink: #111111; /* B ◆ orange */
+  --c2: #009e73; --c2-ink: #111111; /* C ● green */
+  --c3: #cc79a7; --c3-ink: #111111; /* D ■ pink */
+  --ok: #0072b2;   /* "correct" uses blue + ✓ (not green, avoids red/green pairing) */
+  --bad: #d55e00;  /* "wrong" uses vermillion + ✗ */
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.35 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+button, input, select { font: inherit; color: inherit; }
+button {
+  cursor: pointer;
+  border: 2px solid var(--ink);
+  background: var(--panel);
+  border-radius: 8px;
+  padding: .5em 1em;
+  font-weight: 600;
+  touch-action: manipulation;
+}
+button:disabled { opacity: .45; cursor: default; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--c1); outline-offset: 2px; }
+input, select {
+  border: 2px solid var(--line);
+  background: var(--panel);
+  border-radius: 8px;
+  padding: .5em .7em;
+}
+.hidden { display: none !important; }
+.muted { color: var(--muted); }
+
+/* Choice tiles: color + shape + letter */
+.choice { display: flex; align-items: center; gap: .6em; border: 3px solid transparent; border-radius: 10px; padding: .6em .8em; text-align: left; font-weight: 700; }
+.choice .sym { flex: none; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; min-width: 2.2em; line-height: 1; }
+.choice .sym b { font-size: 1.25em; }
+.choice .sym i { font-style: normal; font-size: .8em; }
+.choice .txt { flex: 1; overflow-wrap: anywhere; }
+.choice.k0 { background: var(--c0); color: var(--c0-ink); }
+.choice.k1 { background: var(--c1); color: var(--c1-ink); }
+.choice.k2 { background: var(--c2); color: var(--c2-ink); }
+.choice.k3 { background: var(--c3); color: var(--c3-ink); }
+.choice.dim { opacity: .35; }
+.choice.right { border-color: var(--ink); outline: 4px solid var(--ink); outline-offset: 2px; opacity: 1; }
+
+/* Timer bar: single transform transition, GPU-cheap */
+.timebar { height: 10px; background: var(--line); border-radius: 5px; overflow: hidden; }
+.timebar > div { height: 100%; background: var(--ink); transform-origin: left; }

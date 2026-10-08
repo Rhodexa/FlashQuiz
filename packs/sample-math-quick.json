@@ -1,0 +1,10 @@
+{
+  "title": "Sample · Quick math (no speed bonus)",
+  "time": 30,
+  "speedBonus": false,
+  "questions": [
+    { "q": "What is 15% of 200?", "choices": ["15", "20", "30", "35"], "answer": 2 },
+    { "q": "Solve: 3x + 4 = 19", "choices": ["x = 3", "x = 5", "x = 6", "x = 7"], "answer": 1 },
+    { "q": "Is 91 a prime number?", "choices": ["Yes", "No"], "answer": 1 }
+  ]
+}

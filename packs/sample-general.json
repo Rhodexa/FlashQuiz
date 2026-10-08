@@ -1,0 +1,12 @@
+{
+  "title": "Sample · General knowledge",
+  "time": 20,
+  "speedBonus": true,
+  "questions": [
+    { "q": "What is the chemical symbol for water?", "choices": ["H2O", "CO2", "O2", "NaCl"], "answer": 0 },
+    { "q": "How many continents are there?", "choices": ["5", "6", "7", "8"], "answer": 2 },
+    { "q": "Which planet is known as the Red Planet?", "choices": ["Venus", "Mars", "Jupiter", "Mercury"], "answer": 1, "time": 15 },
+    { "q": "The Sun is a star.", "choices": ["True", "False"], "answer": 0, "time": 10 },
+    { "q": "12 × 12 = ?", "choices": ["124", "144", "132", "154"], "answer": 1 }
+  ]
+}

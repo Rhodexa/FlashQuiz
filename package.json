@@ -1,0 +1,11 @@
+{
+  "name": "flashquiz",
+  "version": "0.1.0",
+  "description": "Local real-time classroom quiz: one server, one Wi-Fi AP, phones as clients. Zero dependencies.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": { "node": ">=16" },
+  "license": "MIT"
+}

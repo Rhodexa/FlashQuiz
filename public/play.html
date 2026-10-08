@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b4f8a">
+<title>FlashQuiz</title>
+<link rel="stylesheet" href="/static/common.css">
+<style>
+  body { display: flex; flex-direction: column; min-height: 100%; }
+  header { display: flex; justify-content: space-between; align-items: center; padding: .6em 1em; background: var(--ink); color: #fff; font-weight: 700; }
+  header .net { font-size: .8em; font-weight: 400; }
+  main { flex: 1; display: flex; flex-direction: column; padding: 1em; gap: 1em; max-width: 640px; width: 100%; margin: 0 auto; }
+  .center { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: .8em; }
+  .big { font-size: 2em; font-weight: 800; margin: 0; }
+  #joinForm { display: flex; flex-direction: column; gap: .8em; width: 100%; }
+  #joinForm input { font-size: 1.3em; padding: .7em; text-align: center; }
+  #joinForm button { font-size: 1.3em; padding: .7em; }
+  .qhead { display: flex; justify-content: space-between; font-weight: 700; }
+  .qtext { font-size: 1.3em; font-weight: 700; margin: 0; }
+  #choices { display: grid; gap: .7em; flex: 1; grid-auto-rows: minmax(4.5em, 1fr); }
+  #choices .choice { font-size: 1.15em; width: 100%; }
+  #choices .sym b { font-size: 1.7em; }
+  .badge { display: inline-block; padding: .3em .8em; border-radius: 999px; border: 2px solid currentColor; font-weight: 800; font-size: 1.6em; }
+  .badge.ok { color: var(--ok); }
+  .badge.bad { color: var(--bad); }
+  .score { font-size: 1.2em; }
+</style>
+</head>
+<body>
+<header><span>⚡ FlashQuiz</span><span class="net" id="net"></span></header>
+<main>
+  <section id="vJoin" class="center hidden">
+    <p class="big">Join the quiz</p>
+    <form id="joinForm" autocomplete="off">
+      <input id="name" maxlength="20" placeholder="Your name" required autofocus>
+      <button class="primary">Join</button>
+      <p id="joinErr" class="muted"></p>
+    </form>
+  </section>
+
+  <section id="vWait" class="center hidden">
+    <p class="big" id="waitTitle">You're in!</p>
+    <p id="waitSub" class="muted">Waiting for the teacher to start…</p>
+  </section>
+
+  <section id="vQ" class="hidden" style="display:flex;flex-direction:column;gap:.8em;flex:1">
+    <div class="qhead"><span id="qNum"></span><span id="qTime"></span></div>
+    <div class="timebar"><div id="qBar"></div></div>
+    <p class="qtext" id="qText"></p>
+    <div id="choices"></div>
+  </section>
+
+  <section id="vResult" class="center hidden">
+    <span id="resBadge" class="badge"></span>
+    <p id="resDetail"></p>
+    <p class="score" id="resScore"></p>
+  </section>
+</main>
+<script>
+(function () {
+  var SHAPES = ['▲', '◆', '●', '■'], LETTERS = 'ABCD';
+  var $ = function (id) { return document.getElementById(id); };
+  var views = ['vJoin', 'vWait', 'vQ', 'vResult'];
+  var id = null, es = null, state = null, tick = null, deadline = 0, sending = false;
+  try { id = localStorage.getItem('fq_id'); } catch (e) {}
+
+  function show(v) { views.forEach(function (x) { $(x).classList.toggle('hidden', x !== v); }); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function choiceHtml(i, text) {
+    return '<span class="sym"><b>' + SHAPES[i] + '</b><i>' + LETTERS[i] + '</i></span><span class="txt">' + esc(text) + '</span>';
+  }
+  function post(url, body) {
+    return fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || r.status); return j; }); });
+  }
+  function forget() { id = null; try { localStorage.removeItem('fq_id'); } catch (e) {} if (es) es.close(); es = null; $('net').textContent = ''; show('vJoin'); }
+
+  $('joinForm').onsubmit = function (e) {
+    e.preventDefault();
+    $('joinErr').textContent = '';
+    post('/api/join', { name: $('name').value }).then(function (j) {
+      id = j.id;
+      try { localStorage.setItem('fq_id', id); localStorage.setItem('fq_name', j.name); } catch (e) {}
+      connect();
+    }).catch(function (err) { $('joinErr').textContent = 'Could not join: ' + err.message; });
+  };
+  try { $('name').value = localStorage.getItem('fq_name') || ''; } catch (e) {}
+
+  function connect() {
+    if (es) es.close();
+    show('vWait');
+    es = new EventSource('/events?id=' + encodeURIComponent(id));
+    es.onopen = function () { $('net').textContent = '● online'; };
+    es.onerror = function () { $('net').textContent = '○ reconnecting…'; };
+    es.onmessage = function (ev) {
+      var m = JSON.parse(ev.data);
+      if (m.type === 'unknown' || m.type === 'kicked') return forget();
+      if (m.type === 'state') render(m);
+    };
+  }
+
+  function render(s) {
+    var prev = state; state = s;
+    var y = s.you, q = s.question;
+    clearInterval(tick);
+    if (s.phase === 'lobby') {
+      $('waitTitle').textContent = "You're in, " + y.name + '!';
+      $('waitSub').textContent = 'Waiting for the teacher to start…';
+      return show('vWait');
+    }
+    if (s.phase === 'question') {
+      if (y.answered !== null) {
+        $('waitTitle').innerHTML = 'Answer locked: ' + SHAPES[y.answered] + ' ' + LETTERS[y.answered];
+        $('waitSub').textContent = 'Waiting for the others…';
+        return show('vWait');
+      }
+      $('qNum').textContent = 'Question ' + (q.index + 1) + ' / ' + q.total;
+      $('qText').textContent = q.text;
+      // Rebuild buttons only when the question changes.
+      if (!prev || !prev.question || prev.question.index !== q.index || prev.phase !== 'question') {
+        var html = '';
+        for (var i = 0; i < q.choices.length; i++)
+          html += '<button class="choice k' + i + '" data-i="' + i + '">' + choiceHtml(i, q.choices[i]) + '</button>';
+        $('choices').innerHTML = html;
+        sending = false;
+      }
+      deadline = Date.now() + q.remainingMs;
+      var bar = $('qBar');
+      bar.style.transition = 'none';
+      bar.style.transform = 'scaleX(' + (q.remainingMs / (q.time * 1000)) + ')';
+      bar.offsetWidth; // commit before animating
+      bar.style.transition = 'transform ' + (q.remainingMs / 1000) + 's linear';
+      bar.style.transform = 'scaleX(0)';
+      var upd = function () { $('qTime').textContent = Math.ceil(Math.max(0, deadline - Date.now()) / 1000) + 's'; };
+      upd(); tick = setInterval(upd, 250);
+      return show('vQ');
+    }
+    if (s.phase === 'reveal') {
+      var r = y.result, b = $('resBadge');
+      if (!r || r.choice === null) { b.className = 'badge bad'; b.textContent = '⏱ No answer'; }
+      else if (r.correct) { b.className = 'badge ok'; b.textContent = '✓ Correct  +' + r.pts; }
+      else { b.className = 'badge bad'; b.textContent = '✗ Wrong'; }
+      $('resDetail').innerHTML = q && !(r && r.correct)
+        ? 'Correct answer: <b>' + SHAPES[q.answer] + ' ' + LETTERS[q.answer] + '</b> — ' + esc(q.choices[q.answer]) : '';
+      $('resScore').textContent = 'Score ' + y.score + ' · Rank ' + y.rank + ' of ' + y.players;
+      return show('vResult');
+    }
+    if (s.phase === 'end') {
+      var b2 = $('resBadge'); b2.className = 'badge ok'; b2.textContent = '🏁 Finished';
+      $('resDetail').textContent = s.packTitle;
+      $('resScore').textContent = 'Final score ' + y.score + ' · Rank ' + y.rank + ' of ' + y.players;
+      return show('vResult');
+    }
+  }
+
+  $('choices').onclick = function (e) {
+    var btn = e.target.closest('button[data-i]');
+    if (!btn || sending || !state || state.phase !== 'question') return;
+    sending = true;
+    var i = Number(btn.getAttribute('data-i'));
+    var all = $('choices').children;
+    for (var k = 0; k < all.length; k++) if (all[k] !== btn) all[k].classList.add('dim');
+    post('/api/answer', { id: id, index: state.question.index, choice: i })
+      .catch(function (err) {
+        sending = false;
+        for (var k = 0; k < all.length; k++) all[k].classList.remove('dim');
+        $('qTime').textContent = err.message;
+      });
+  };
+
+  if (id) connect(); else show('vJoin');
+})();
+</script>
+</body>
+</html>
