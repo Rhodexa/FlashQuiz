@@ -14,23 +14,36 @@
       "answer": 0
     },
     {
+      "q": "¿A qué familia de materiales pertenece el caucho?",
+      "choices": ["Metales", "Cerámicos", "Polímeros (elastómeros)"],
+      "answer": 2
+    },
+    {
       "q": "¿Quién descubrió la vulcanización y en qué año?",
       "choices": ["Henry Ford, 1908", "Charles Goodyear, 1839", "Alexander Parkes, 1862"],
       "answer": 1
     },
     {
+      "q": "¿Cuándo se desarrolló el caucho sintético y por qué?",
+      "choices": ["Entre 1930 y 1940, porque faltaba caucho natural en las guerras", "En la Edad Media, para hacer armaduras", "En 2001, para reemplazar al plástico"],
+      "answer": 0,
+      "time": 30
+    },
+    {
       "q": "¿Para qué se usa el azufre en la vulcanización?",
       "choices": ["Para \"curar\" el caucho y que no se derrita ni se rompa fácil", "Para darle color negro", "Para hacerlo más duro que el metal"],
-      "answer": 0
+      "answer": 0,
+      "time": 30
+    },
+    {
+      "q": "¿De qué color es el látex recién sacado del árbol?",
+      "choices": ["Negro", "Verde", "Blanco lechoso o amarillento"],
+      "answer": 2,
+      "time": 15
     },
     {
       "q": "¿Por qué el caucho flota en el agua?",
       "choices": ["Porque tiene huecos con aire", "Porque es hueco por dentro", "Porque su densidad (0,92-0,96 g/cm³) es menor que la del agua"],
-      "answer": 2
-    },
-    {
-      "q": "¿Por qué se usan guantes y botas de goma para trabajar con electricidad?",
-      "choices": ["Porque es muy pesado", "Porque es buen conductor", "Porque es un aislante eléctrico"],
       "answer": 2
     },
     {
@@ -39,9 +52,64 @@
       "answer": 1
     },
     {
+      "q": "¿Por qué el caucho se puede estirar tanto?",
+      "choices": ["Porque tiene resortes de metal adentro", "Porque sus cadenas están enredadas como fideos y se desenrollan", "Porque sus átomos forman un cristal ordenado"],
+      "answer": 1,
+      "time": 30
+    },
+    {
+      "q": "¿Cuánto se puede estirar el caucho antes de romperse?",
+      "choices": ["Un 10% de su largo", "El doble (100%)", "Entre 700% y 800%", "Más de 5000%"],
+      "answer": 2
+    },
+    {
+      "q": "¿Qué pasa si calentás mucho el caucho (150-200 °C)?",
+      "choices": ["No se funde: se quema y se carboniza", "Se derrite como un plástico y se vuelve a moldear", "Se convierte en vidrio"],
+      "answer": 0
+    },
+    {
+      "q": "¿Por qué se usan guantes y botas de goma para trabajar con electricidad?",
+      "choices": ["Porque es muy pesado", "Porque es buen conductor", "Porque es un aislante eléctrico"],
+      "answer": 2
+    },
+    {
+      "q": "¿Por qué una cubierta vieja se cuartea aunque casi no haya rodado?",
+      "choices": ["Por el sol (UV), el ozono y el calor", "Por el óxido, como el hierro", "Porque se le escapa el aire"],
+      "answer": 0
+    },
+    {
+      "q": "¿Qué máquina del taller CET7 sirve para moldear caucho?",
+      "choices": ["Soldadora eléctrica", "Prensa hidráulica de banco (moldeo por compresión)", "Amoladora de banco"],
+      "answer": 1
+    },
+    {
+      "q": "¿Para qué pieza mecánica conviene usar caucho?",
+      "choices": ["Soporte antivibratorio para un motor", "Engranaje para cargas pesadas", "Mecha para perforar metal"],
+      "answer": 0
+    },
+    {
       "q": "¿Qué conviene hacer al mecanizar caucho con una máquina?",
       "choices": ["Cortar a máxima velocidad sin lubricante", "Usar una herramienta sin filo", "Ir a baja velocidad, con herramienta afilada y lubricante"],
-      "answer": 2
+      "answer": 2,
+      "time": 30
+    },
+    {
+      "q": "⭐ Bonus: Hace más de 3000 años, los pueblos de Mesoamérica (como los olmecas) usaban el caucho para fabricar…",
+      "choices": ["Pelotas para un juego ritual", "Cubiertas para carretas", "Guantes para electricistas"],
+      "answer": 0,
+      "time": 30
+    },
+    {
+      "q": "⭐ Bonus: ¿Por qué en inglés la goma de borrar se llama \"rubber\"?",
+      "choices": ["Por su inventor, el señor Rubber", "Porque en 1770 se descubrió que frotándola (to rub) borraba el lápiz", "Porque es de color rojo rubí"],
+      "answer": 1,
+      "time": 30
+    },
+    {
+      "q": "⭐ Bonus: El árbol del caucho es de Brasil, pero ¿qué país es hoy el mayor productor de caucho natural?",
+      "choices": ["Brasil", "Argentina", "Tailandia"],
+      "answer": 2,
+      "time": 30
     }
   ]
 }

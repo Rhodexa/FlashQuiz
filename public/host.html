@@ -38,6 +38,7 @@
   .qtop { display: flex; justify-content: space-between; align-items: baseline; font-weight: 700; font-size: 1.3em; }
   .qtime { font-size: 2.4em; font-weight: 800; font-variant-numeric: tabular-nums; }
   .qtext { font-size: clamp(1.6em, 3.4vw, 3em); font-weight: 800; margin: 0; }
+  .qtext.long { font-size: clamp(1.3em, 2.5vw, 2.2em); }
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1em; flex: 1; min-height: 0; }
   .grid .choice { font-size: clamp(1.2em, 2.4vw, 2.2em); min-height: 0; position: relative; overflow: hidden; }
   .grid .count { font-size: .9em; font-variant-numeric: tabular-nums; }
@@ -217,7 +218,7 @@
       $('main').innerHTML =
         '<div class="qtop"><span>Pregunta ' + (q.index + 1) + ' de ' + q.total + '</span><span class="qtime" id="qtime"></span></div>' +
         (reveal ? '' : '<div class="timebar"><div id="qbar"></div></div>') +
-        '<p class="qtext">' + esc(q.text) + '</p>' +
+        '<p class="qtext' + (q.text.length > 90 ? ' long' : '') + '">' + esc(q.text) + '</p>' +
         '<div class="grid">' + q.choices.map(function (c, i) {
           var cls = 'choice k' + i + (reveal ? (i === q.answer ? ' right' : ' dim') : '');
           return '<div class="' + cls + '"><span class="sym"><b>' + SHAPES[i] + '</b><i>' + LETTERS[i] + '</i></span>' +
