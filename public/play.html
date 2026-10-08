@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="es-AR">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -31,17 +31,17 @@
 <header><span>⚡ FlashQuiz</span><span class="net" id="net"></span></header>
 <main>
   <section id="vJoin" class="center hidden">
-    <p class="big">Join the quiz</p>
+    <p class="big">Sumate al quiz</p>
     <form id="joinForm" autocomplete="off">
-      <input id="name" maxlength="20" placeholder="Your name" required autofocus>
-      <button class="primary">Join</button>
+      <input id="name" maxlength="20" placeholder="Tu nombre" required autofocus>
+      <button class="primary">Entrar</button>
       <p id="joinErr" class="muted"></p>
     </form>
   </section>
 
   <section id="vWait" class="center hidden">
-    <p class="big" id="waitTitle">You're in!</p>
-    <p id="waitSub" class="muted">Waiting for the teacher to start…</p>
+    <p class="big" id="waitTitle">¡Ya estás adentro!</p>
+    <p id="waitSub" class="muted">Esperando que empiece el quiz…</p>
   </section>
 
   <section id="vQ" class="hidden" style="display:flex;flex-direction:column;gap:.8em;flex:1">
@@ -83,7 +83,7 @@
       id = j.id;
       try { localStorage.setItem('fq_id', id); localStorage.setItem('fq_name', j.name); } catch (e) {}
       connect();
-    }).catch(function (err) { $('joinErr').textContent = 'Could not join: ' + err.message; });
+    }).catch(function (err) { $('joinErr').textContent = 'No se pudo entrar: ' + err.message; });
   };
   try { $('name').value = localStorage.getItem('fq_name') || ''; } catch (e) {}
 
@@ -91,8 +91,8 @@
     if (es) es.close();
     show('vWait');
     es = new EventSource('/events?id=' + encodeURIComponent(id));
-    es.onopen = function () { $('net').textContent = '● online'; };
-    es.onerror = function () { $('net').textContent = '○ reconnecting…'; };
+    es.onopen = function () { $('net').textContent = '● conectado'; };
+    es.onerror = function () { $('net').textContent = '○ reconectando…'; };
     es.onmessage = function (ev) {
       var m = JSON.parse(ev.data);
       if (m.type === 'unknown' || m.type === 'kicked') return forget();
@@ -105,17 +105,17 @@
     var y = s.you, q = s.question;
     clearInterval(tick);
     if (s.phase === 'lobby') {
-      $('waitTitle').textContent = "You're in, " + y.name + '!';
-      $('waitSub').textContent = 'Waiting for the teacher to start…';
+      $('waitTitle').textContent = '¡Ya estás adentro, ' + y.name + '!';
+      $('waitSub').textContent = 'Esperando que empiece el quiz…';
       return show('vWait');
     }
     if (s.phase === 'question') {
       if (y.answered !== null) {
-        $('waitTitle').innerHTML = 'Answer locked: ' + SHAPES[y.answered] + ' ' + LETTERS[y.answered];
-        $('waitSub').textContent = 'Waiting for the others…';
+        $('waitTitle').innerHTML = 'Respuesta enviada: ' + SHAPES[y.answered] + ' ' + LETTERS[y.answered];
+        $('waitSub').textContent = 'Esperando al resto…';
         return show('vWait');
       }
-      $('qNum').textContent = 'Question ' + (q.index + 1) + ' / ' + q.total;
+      $('qNum').textContent = 'Pregunta ' + (q.index + 1) + ' / ' + q.total;
       $('qText').textContent = q.text;
       // Rebuild buttons only when the question changes.
       if (!prev || !prev.question || prev.question.index !== q.index || prev.phase !== 'question') {
@@ -138,18 +138,18 @@
     }
     if (s.phase === 'reveal') {
       var r = y.result, b = $('resBadge');
-      if (!r || r.choice === null) { b.className = 'badge bad'; b.textContent = '⏱ No answer'; }
-      else if (r.correct) { b.className = 'badge ok'; b.textContent = '✓ Correct  +' + r.pts; }
-      else { b.className = 'badge bad'; b.textContent = '✗ Wrong'; }
+      if (!r || r.choice === null) { b.className = 'badge bad'; b.textContent = '⏱ Sin respuesta'; }
+      else if (r.correct) { b.className = 'badge ok'; b.textContent = '✓ ¡Correcto!  +' + r.pts; }
+      else { b.className = 'badge bad'; b.textContent = '✗ Incorrecto'; }
       $('resDetail').innerHTML = q && !(r && r.correct)
-        ? 'Correct answer: <b>' + SHAPES[q.answer] + ' ' + LETTERS[q.answer] + '</b> — ' + esc(q.choices[q.answer]) : '';
-      $('resScore').textContent = 'Score ' + y.score + ' · Rank ' + y.rank + ' of ' + y.players;
+        ? 'Respuesta correcta: <b>' + SHAPES[q.answer] + ' ' + LETTERS[q.answer] + '</b> — ' + esc(q.choices[q.answer]) : '';
+      $('resScore').textContent = 'Puntaje ' + y.score + ' · Puesto ' + y.rank + ' de ' + y.players;
       return show('vResult');
     }
     if (s.phase === 'end') {
-      var b2 = $('resBadge'); b2.className = 'badge ok'; b2.textContent = '🏁 Finished';
+      var b2 = $('resBadge'); b2.className = 'badge ok'; b2.textContent = '🏁 ¡Terminó!';
       $('resDetail').textContent = s.packTitle;
-      $('resScore').textContent = 'Final score ' + y.score + ' · Rank ' + y.rank + ' of ' + y.players;
+      $('resScore').textContent = 'Puntaje final ' + y.score + ' · Puesto ' + y.rank + ' de ' + y.players;
       return show('vResult');
     }
   }

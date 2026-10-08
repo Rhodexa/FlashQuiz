@@ -51,19 +51,19 @@ function listPacks() {
 }
 
 function validatePack(p) {
-  if (!p || !Array.isArray(p.questions) || !p.questions.length) throw new Error('missing "questions" array');
+  if (!p || !Array.isArray(p.questions) || !p.questions.length) throw new Error('falta la lista "questions"');
   const defTime = clampInt(p.time, 5, 300, 20);
   return {
-    title: String(p.title || 'Untitled pack').slice(0, 120),
+    title: String(p.title || 'Cuestionario sin título').slice(0, 120),
     speedBonus: p.speedBonus !== false,
     questions: p.questions.map((q, i) => {
-      const n = `question ${i + 1}`;
-      if (!q || typeof q.q !== 'string' || !q.q.trim()) throw new Error(`${n}: "q" text required`);
+      const n = `pregunta ${i + 1}`;
+      if (!q || typeof q.q !== 'string' || !q.q.trim()) throw new Error(`${n}: falta el texto "q"`);
       if (!Array.isArray(q.choices) || q.choices.length < 2 || q.choices.length > 4)
-        throw new Error(`${n}: "choices" must have 2-4 items`);
+        throw new Error(`${n}: "choices" debe tener entre 2 y 4 opciones`);
       const answer = Number(q.answer);
       if (!Number.isInteger(answer) || answer < 0 || answer >= q.choices.length)
-        throw new Error(`${n}: "answer" must be a choice index (0-${q.choices.length - 1})`);
+        throw new Error(`${n}: "answer" debe ser el número de una opción (0-${q.choices.length - 1})`);
       return { q: q.q.trim(), choices: q.choices.map(String), answer, time: clampInt(q.time, 5, 300, defTime) };
     }),
   };
@@ -231,6 +231,18 @@ setInterval(() => {
   for (const p of players.values()) for (const r of p.streams) r.write(ping);
 }, 15000).unref();
 
+// Laptops hop networks (school Wi-Fi -> phone hotspot) while the server runs.
+// Push the new join URL so the QR on screen never points at a stale IP.
+let lastJoinKey = '';
+setInterval(() => {
+  const j = joinInfo();
+  const key = j.url + '|' + j.addresses.map((a) => a.ip).join(',');
+  if (key === lastJoinKey) return;
+  if (lastJoinKey) console.log(`  Network changed — students join at: ${j.url || '(no LAN address)'}`);
+  lastJoinKey = key;
+  broadcastHost();
+}, 3000).unref();
+
 // -------------------------------------------------------------- network ---
 function lanAddresses() {
   let ifaces = {};
@@ -286,12 +298,12 @@ function readBody(req) {
     let size = 0; const chunks = [];
     req.on('data', (c) => {
       size += c.length;
-      if (size > 256 * 1024) { reject(new Error('body too large')); req.destroy(); }
+      if (size > 256 * 1024) { reject(new Error('Archivo demasiado grande')); req.destroy(); }
       else chunks.push(c);
     });
     req.on('end', () => {
       try { resolve(chunks.length ? JSON.parse(Buffer.concat(chunks).toString('utf8')) : {}); }
-      catch { reject(new Error('invalid JSON')); }
+      catch { reject(new Error('JSON inválido')); }
     });
     req.on('error', reject);
   });
@@ -309,7 +321,7 @@ function serveStatic(res, file) {
 
 function uniqueName(raw) {
   let name = String(raw || '').replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, 20);
-  if (!name) name = 'Player';
+  if (!name) name = 'Jugador';
   const taken = new Set([...players.values()].map((p) => p.name.toLowerCase()));
   if (!taken.has(name.toLowerCase())) return name;
   for (let i = 2; ; i++) if (!taken.has(`${name} ${i}`.toLowerCase())) return `${name} ${i}`;
@@ -322,10 +334,10 @@ const hostActions = {
     game.pack = validatePack(b.pack);
     game.pack.id = '(uploaded) ' + String(b.name || 'pack.json').slice(0, 60);
   },
-  start: () => { if (!game.pack) throw new Error('load a question pack first'); resetGame(true); startQuestion(0); },
+  start: () => { if (!game.pack) throw new Error('primero cargá un cuestionario'); resetGame(true); startQuestion(0); },
   reveal: () => reveal(),
   next: () => {
-    if (!game.pack) throw new Error('load a question pack first');
+    if (!game.pack) throw new Error('primero cargá un cuestionario');
     if (game.phase === 'question') return reveal();
     if (game.phase === 'lobby') return startQuestion(0);
     if (game.qIndex + 1 >= game.pack.questions.length) return endGame();
@@ -348,7 +360,7 @@ const server = http.createServer(async (req, res) => {
     // ---- pages
     if (req.method === 'GET' && (p === '/' || p === '/play')) return serveStatic(res, 'play.html');
     if (req.method === 'GET' && p === '/host') {
-      if (!isHost(req, url)) return json(res, 403, { error: 'host key required: /host?key=…' });
+      if (!isHost(req, url)) return json(res, 403, { error: 'Falta la clave del panel: /host?key=…' });
       return serveStatic(res, 'host.html');
     }
     if (req.method === 'GET' && /^\/static\/[\w.-]+$/.test(p)) return serveStatic(res, p.slice(8));
@@ -391,13 +403,13 @@ const server = http.createServer(async (req, res) => {
       const b = await readBody(req);
       const pl = players.get(b.id);
       const q = currentQ();
-      if (!pl) return json(res, 404, { error: 'unknown player' });
-      if (game.phase !== 'question' || b.index !== game.qIndex) return json(res, 409, { error: 'too late' });
-      if (game.answers.has(pl.id)) return json(res, 409, { error: 'already answered' });
+      if (!pl) return json(res, 404, { error: 'Jugador desconocido' });
+      if (game.phase !== 'question' || b.index !== game.qIndex) return json(res, 409, { error: 'Se terminó el tiempo' });
+      if (game.answers.has(pl.id)) return json(res, 409, { error: 'Ya respondiste' });
       const choice = Number(b.choice);
-      if (!Number.isInteger(choice) || choice < 0 || choice >= q.choices.length) return json(res, 400, { error: 'bad choice' });
+      if (!Number.isInteger(choice) || choice < 0 || choice >= q.choices.length) return json(res, 400, { error: 'Opción inválida' });
       const ms = Date.now() - game.qStartedAt;
-      if (ms > q.time * 1000 + 1500) return json(res, 409, { error: 'too late' });
+      if (ms > q.time * 1000 + 1500) return json(res, 409, { error: 'Se terminó el tiempo' });
       game.answers.set(pl.id, { choice, ms });
       send(pl.streams, playerSnapshot(pl));
       broadcastHost();
@@ -411,7 +423,7 @@ const server = http.createServer(async (req, res) => {
 
     // ---- host API
     if (p === '/host/events' || p.startsWith('/api/host/') || p === '/results.csv') {
-      if (!isHost(req, url)) return json(res, 403, { error: 'forbidden' });
+      if (!isHost(req, url)) return json(res, 403, { error: 'Acceso denegado' });
     }
     if (req.method === 'GET' && p === '/host/events') {
       openStream(req, res);
@@ -423,7 +435,7 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'GET' && p === '/api/host/packs') return json(res, 200, { packs: listPacks() });
     if (req.method === 'POST' && p.startsWith('/api/host/')) {
       const action = hostActions[p.slice(10)];
-      if (!action) return json(res, 404, { error: 'unknown action' });
+      if (!action) return json(res, 404, { error: 'Acción desconocida' });
       const b = await readBody(req);
       try { action(b); } catch (e) { return json(res, 400, { error: e.message }); }
       broadcastAll();
@@ -433,16 +445,17 @@ const server = http.createServer(async (req, res) => {
       const qs = game.pack ? game.pack.questions : [];
       const L = 'ABCD';
       const cell = (v) => `"${String(v).replace(/"/g, '""')}"`;
-      const rows = [['rank', 'name', 'score', 'correct', ...qs.map((_, i) => `Q${i + 1}`)].map(cell).join(',')];
+      // ';' separator: Spanish-locale Excel uses ',' as the decimal mark.
+      const rows = [['puesto', 'nombre', 'puntaje', 'correctas', ...qs.map((_, i) => `P${i + 1}`)].map(cell).join(';')];
       const byName = new Map([...players.values()].map((pl) => [pl.name, pl]));
       for (const r of leaderboard()) {
         const pl = byName.get(r.name);
         rows.push([r.rank, r.name, r.score, r.correct, ...qs.map((_, i) => {
           const x = pl.results[i];
           return !x ? '' : x.choice === null ? '-' : L[x.choice] + (x.correct ? ' ✓' : ' ✗');
-        })].map(cell).join(','));
+        })].map(cell).join(';'));
       }
-      res.writeHead(200, { 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': 'attachment; filename="flashquiz-results.csv"' });
+      res.writeHead(200, { 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': 'attachment; filename="flashquiz-resultados.csv"' });
       return res.end('﻿' + rows.join('\r\n'));
     }
 
@@ -450,6 +463,13 @@ const server = http.createServer(async (req, res) => {
   } catch (e) {
     json(res, 400, { error: e.message });
   }
+});
+
+server.on('error', (e) => {
+  if (e.code === 'EADDRINUSE') console.error(`\n  Port ${PORT} is already in use (is FlashQuiz already running?). Try: node server.js --port ${PORT + 1}\n`);
+  else if (e.code === 'EACCES') console.error(`\n  No permission to use port ${PORT}. Ports below 1024 need admin rights; try --port 8080.\n`);
+  else console.error(e);
+  process.exit(1);
 });
 
 server.listen(PORT, '0.0.0.0', () => {

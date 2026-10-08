@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="es-AR">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FlashQuiz · Host</title>
+<title>FlashQuiz · Panel</title>
 <link rel="stylesheet" href="/static/common.css">
 <style>
   body { display: grid; grid-template-rows: auto 1fr auto; height: 100vh; overflow: hidden; }
@@ -17,7 +17,7 @@
 
   .qr { width: 100%; aspect-ratio: 1; background: #fff; image-rendering: pixelated; }
   .url { font: 700 clamp(1em, 1.8vw, 1.6em)/1.2 ui-monospace, Menlo, Consolas, monospace; text-align: center; overflow-wrap: anywhere; }
-  .side .qr { width: min(100%, 34vh); align-self: center; }
+  .side .qr { width: min(100%, 30vh); align-self: center; }
   .side h3 { margin: 0; font-size: 1em; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
   .stat { font-size: 2.2em; font-weight: 800; text-align: center; }
   .stat small { display: block; font-size: .4em; font-weight: 600; color: var(--muted); }
@@ -56,7 +56,8 @@
   .controls { display: flex; flex-wrap: wrap; gap: .4em; align-items: center; padding: .5em 1em; font-size: .9em; background: #e2e2dc; border-top: 2px solid var(--line); }
   .controls .sep { width: 2px; align-self: stretch; background: var(--line); }
   .controls .grow { flex: 1; }
-  .controls button { padding: .4em .8em; }
+  .controls button { padding: .4em .7em; }
+  #packSel { max-width: 15em; }
   #primary { min-width: 9em; font-size: 1.15em; }
   #primary kbd { font: inherit; font-size: .7em; opacity: .8; }
   #settings { display: flex; flex-wrap: wrap; gap: .5em; align-items: center; width: 100%; padding-top: .5em; border-top: 1px solid var(--line); }
@@ -70,16 +71,16 @@
 <body>
 <header>
   <span>⚡ FlashQuiz</span>
-  <span class="grow pill" id="hPack">No pack loaded</span>
+  <span class="grow pill" id="hPack">Sin cuestionario cargado</span>
   <span class="pill" id="hPhase"></span>
-  <span class="pill" id="hNet">○ connecting…</span>
+  <span class="pill" id="hNet">○ conectando…</span>
 </header>
 
 <div class="stage">
   <section class="main" id="main"></section>
   <aside class="side">
-    <h3>Join</h3>
-    <img class="qr" id="sideQr" alt="QR code to join">
+    <h3>Unite</h3>
+    <img class="qr" id="sideQr" alt="Código QR para unirse">
     <div class="url" id="sideUrl"></div>
     <div class="stat" id="sideStat"></div>
     <div id="sideExtra" style="min-height:0;overflow:hidden"></div>
@@ -87,34 +88,34 @@
 </div>
 
 <div class="controls" id="controls">
-  <select id="packSel" title="Question pack"></select>
-  <button id="btnLoad">Load</button>
-  <label><button id="btnUpload" type="button">Upload…</button><input type="file" id="file" accept=".json,application/json" hidden></label>
+  <select id="packSel" title="Cuestionario"></select>
+  <button id="btnLoad">Cargar</button>
+  <label><button id="btnUpload" type="button">Subir…</button><input type="file" id="file" accept=".json,application/json" hidden></label>
   <span class="sep"></span>
-  <button id="primary" class="primary">Start</button>
-  <button id="btnEnd">End</button>
-  <button id="btnRestart" title="Same players, scores to zero">Restart</button>
-  <button id="btnReset" title="Remove everyone, back to lobby">Clear</button>
+  <button id="primary" class="primary">Empezar</button>
+  <button id="btnEnd">Terminar</button>
+  <button id="btnRestart" title="Mismos jugadores, puntajes en cero">Reiniciar</button>
+  <button id="btnReset" title="Saca a todos y vuelve a la sala de espera">Vaciar</button>
   <a id="csv" href="/results.csv" download><button type="button">CSV</button></a>
   <span class="grow"></span>
   <span id="msg"></span>
-  <button id="btnSettings">Network</button>
-  <button id="btnHide" title="Hide controls — press H to bring them back">Hide</button>
+  <button id="btnSettings">Red</button>
+  <button id="btnHide" title="Ocultar controles — apretá H para volver a mostrarlos">Ocultar</button>
   <div id="settings" class="hidden">
-    <label>Join address <select id="ipSel"></select></label>
-    <label>or type <input id="ipInput" size="15" placeholder="192.168.43.1"></label>
-    <button id="btnIp">Use</button>
+    <label>Dirección para unirse <select id="ipSel"></select></label>
+    <label>o escribila <input id="ipInput" size="15" placeholder="192.168.43.1"></label>
+    <button id="btnIp">Usar</button>
     <span class="sep"></span>
-    <label>Wi-Fi name <input id="ssid" size="14"></label>
-    <label>Password <input id="pass" size="14" type="password"></label>
-    <button id="btnWifi">Show Wi-Fi QR</button>
+    <label>Nombre del Wi-Fi <input id="ssid" size="14"></label>
+    <label>Contraseña <input id="pass" size="14" type="password"></label>
+    <button id="btnWifi">Mostrar QR del Wi-Fi</button>
   </div>
 </div>
 
 <script>
 (function () {
   var SHAPES = ['▲', '◆', '●', '■'], LETTERS = 'ABCD';
-  var PHASE = { lobby: 'Lobby', question: 'Question', reveal: 'Answer', end: 'Final results' };
+  var PHASE = { lobby: 'Sala de espera', question: 'Pregunta', reveal: 'Respuesta', end: 'Resultados finales' };
   var $ = function (id) { return document.getElementById(id); };
   var key = new URLSearchParams(location.search).get('key') || '';
   var S = null, tick = null, lastQrKey = '', lastQKey = '';
@@ -132,8 +133,8 @@
 
   // ---------------------------------------------------------- live state
   var es = new EventSource(k('/host/events'));
-  es.onopen = function () { $('hNet').textContent = '● live'; };
-  es.onerror = function () { $('hNet').textContent = '○ reconnecting…'; };
+  es.onopen = function () { $('hNet').textContent = '● en vivo'; };
+  es.onerror = function () { $('hNet').textContent = '○ reconectando…'; };
   es.onmessage = function (ev) { var m = JSON.parse(ev.data); if (m.type === 'state') render(m); };
 
   function joinUrl(s) {
@@ -147,7 +148,7 @@
   function render(s) {
     S = s;
     var url = joinUrl(s);
-    $('hPack').textContent = s.pack ? s.pack.title + ' · ' + s.pack.count + ' questions' : 'No pack loaded';
+    $('hPack').textContent = s.pack ? s.pack.title + ' · ' + s.pack.count + ' preguntas' : 'Sin cuestionario cargado';
     $('hPhase').textContent = PHASE[s.phase] + (s.question && s.phase !== 'end' ? ' ' + (s.question.index + 1) + '/' + s.question.total : '');
 
     // QR only re-requested when the URL actually changes.
@@ -155,7 +156,7 @@
     if (qrKey !== lastQrKey) {
       lastQrKey = qrKey;
       $('sideQr').src = url ? '/qr/join.svg?url=' + encodeURIComponent(url) : '';
-      $('sideUrl').textContent = url ? url.replace(/^http:\/\//, '').replace(/\/$/, '') : 'No network address — open Network ⚙';
+      $('sideUrl').textContent = url ? url.replace(/^http:\/\//, '').replace(/\/$/, '') : 'Sin dirección de red — abrí «Red»';
       fillIpSelect(s);
     }
 
@@ -163,17 +164,17 @@
     document.querySelector('.side').classList.toggle('hidden', lobby);
     document.querySelector('.stage').classList.toggle('solo', lobby);
     $('sideStat').innerHTML = s.phase === 'question'
-      ? s.answered + ' / ' + s.online + '<small>answered</small>'
-      : s.online + '<small>players online</small>';
+      ? s.answered + ' / ' + s.online + '<small>respondieron</small>'
+      : s.online + '<small>conectados</small>';
     $('sideExtra').innerHTML = s.phase === 'reveal' ? '<h3>Top 3</h3>' + lbHtml(s.leaderboard.slice(0, 3)) : '';
 
     if (lobby) renderLobby(s, url);
     else if (s.phase === 'question' || s.phase === 'reveal') renderQuestion(s);
     else renderEnd(s);
 
-    var label = { lobby: 'Start ▶', question: 'Reveal answer', reveal: 'Next ▶', end: 'Restart' }[s.phase];
-    if (s.phase === 'reveal' && s.question && s.question.index + 1 >= s.question.total) label = 'Final results ▶';
-    $('primary').innerHTML = label + ' <kbd>Space</kbd>';
+    var label = { lobby: 'Empezar ▶', question: 'Mostrar respuesta', reveal: 'Siguiente ▶', end: 'Reiniciar' }[s.phase];
+    if (s.phase === 'reveal' && s.question && s.question.index + 1 >= s.question.total) label = 'Resultados ▶';
+    $('primary').innerHTML = label + ' <kbd>Espacio</kbd>';
     $('primary').disabled = !s.pack;
   }
 
@@ -185,23 +186,23 @@
     if (lobbyKey === lastLobbyKey && $('chips')) return renderChips(s);
     lastLobbyKey = lobbyKey;
     var steps = '';
-    if (wifi) steps += '<li>Connect to Wi-Fi <b>' + esc(wifi.ssid) + '</b><br><img class="wifiqr" src="' + k('/qr/wifi.svg?v=' + wifi.v) + '" alt="Wi-Fi QR"></li>';
-    else steps += '<li>Connect to the classroom Wi-Fi</li>';
-    steps += '<li>Scan the QR code, or open<br><b class="url" style="text-align:left;display:block">' + esc(url.replace(/^http:\/\//, '').replace(/\/$/, '')) + '</b></li>';
-    steps += '<li>Type your name and wait</li>';
+    if (wifi) steps += '<li>Conectate al Wi-Fi <b>' + esc(wifi.ssid) + '</b><br><img class="wifiqr" src="' + k('/qr/wifi.svg?v=' + wifi.v) + '" alt="QR del Wi-Fi"></li>';
+    else steps += '<li>Conectate al Wi-Fi del aula</li>';
+    steps += '<li>Escaneá el código QR o abrí<br><b class="url" style="text-align:left;display:block">' + esc(url.replace(/^http:\/\//, '').replace(/\/$/, '')) + '</b></li>';
+    steps += '<li>Escribí tu nombre y esperá</li>';
     $('main').innerHTML =
       '<div class="lobby">' +
-        '<img class="qr bigqr" src="' + (url ? '/qr/join.svg?url=' + encodeURIComponent(url) : '') + '" alt="QR code to join">' +
-        '<div><h1>Join the quiz</h1><ol class="steps">' + steps + '</ol></div>' +
+        '<img class="qr bigqr" src="' + (url ? '/qr/join.svg?url=' + encodeURIComponent(url) : '') + '" alt="Código QR para unirse">' +
+        '<div><h1>Sumate al quiz</h1><ol class="steps">' + steps + '</ol></div>' +
       '</div>' +
       '<div class="stat" style="text-align:left" id="joined"></div>' +
       '<div class="chips" id="chips"></div>';
     renderChips(s);
   }
   function renderChips(s) {
-    $('joined').textContent = s.online + ' joined';
+    $('joined').textContent = s.online + (s.online === 1 ? ' conectado' : ' conectados');
     $('chips').innerHTML = s.players.map(function (p) {
-      return '<span class="chip' + (p.online ? '' : ' off') + '" data-id="' + p.id + '" title="Click to remove">' + esc(p.name) + '</span>';
+      return '<span class="chip' + (p.online ? '' : ' off') + '" data-id="' + p.id + '" title="Clic para sacar">' + esc(p.name) + '</span>';
     }).join('');
   }
 
@@ -214,7 +215,7 @@
       // Full rebuild only on question/phase change; live counts patch text nodes.
       lastQKey = qKey;
       $('main').innerHTML =
-        '<div class="qtop"><span>Question ' + (q.index + 1) + ' of ' + q.total + '</span><span class="qtime" id="qtime"></span></div>' +
+        '<div class="qtop"><span>Pregunta ' + (q.index + 1) + ' de ' + q.total + '</span><span class="qtime" id="qtime"></span></div>' +
         (reveal ? '' : '<div class="timebar"><div id="qbar"></div></div>') +
         '<p class="qtext">' + esc(q.text) + '</p>' +
         '<div class="grid">' + q.choices.map(function (c, i) {
@@ -243,11 +244,11 @@
   function renderEnd(s) {
     lastLobbyKey = '';
     lastQKey = ''; clearInterval(tick);
-    $('main').innerHTML = '<div class="final"><h1>🏁 Final results</h1>' + lbHtml(s.leaderboard) + '</div>';
+    $('main').innerHTML = '<div class="final"><h1>🏁 Resultados finales</h1>' + lbHtml(s.leaderboard) + '</div>';
   }
 
   function lbHtml(list) {
-    if (!list.length) return '<p class="muted">No players.</p>';
+    if (!list.length) return '<p class="muted">No hay jugadores.</p>';
     return '<ol class="lb">' + list.map(function (r) {
       return '<li><span class="r">' + r.rank + '</span><span class="n">' + esc(r.name) + '</span><span class="s">' + r.score + '</span></li>';
     }).join('') + '</ol>';
@@ -260,9 +261,9 @@
     act(S.phase === 'question' ? 'reveal' : 'next');
   }
   $('primary').onclick = primary;
-  $('btnEnd').onclick = function () { if (confirm('End the quiz and show final results?')) act('end'); };
-  $('btnRestart').onclick = function () { if (confirm('Restart? Scores go back to 0, players stay.')) act('reset', { keepPlayers: true }); };
-  $('btnReset').onclick = function () { if (confirm('Remove ALL players and go back to the lobby?')) act('reset', { keepPlayers: false }); };
+  $('btnEnd').onclick = function () { if (confirm('¿Terminar el quiz y mostrar los resultados finales?')) act('end'); };
+  $('btnRestart').onclick = function () { if (confirm('¿Reiniciar? Los puntajes vuelven a 0 y los jugadores se quedan.')) act('reset', { keepPlayers: true }); };
+  $('btnReset').onclick = function () { if (confirm('¿Sacar a TODOS los jugadores y volver a la sala de espera?')) act('reset', { keepPlayers: false }); };
   $('btnLoad').onclick = function () { if ($('packSel').value) act('pack', { id: $('packSel').value }); };
   $('btnUpload').onclick = function () { $('file').click(); };
   $('file').onchange = function () {
@@ -270,7 +271,7 @@
     var rd = new FileReader();
     rd.onload = function () {
       try { act('upload', { name: f.name, pack: JSON.parse(rd.result) }); }
-      catch (e) { $('msg').textContent = f.name + ': invalid JSON'; }
+      catch (e) { $('msg').textContent = f.name + ': JSON inválido'; }
     };
     rd.readAsText(f); this.value = '';
   };
@@ -281,7 +282,7 @@
   $('btnWifi').onclick = function () { act('wifi', { ssid: $('ssid').value.trim(), pass: $('pass').value }); };
   $('main').onclick = function (e) {
     var c = e.target.closest('.chip[data-id]');
-    if (c && confirm('Remove ' + c.textContent + '?')) act('kick', { id: c.getAttribute('data-id') });
+    if (c && confirm('¿Sacar a ' + c.textContent + '?')) act('kick', { id: c.getAttribute('data-id') });
   };
   document.addEventListener('keydown', function (e) {
     if (/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
@@ -297,13 +298,13 @@
     var cur = s.join.ip;
     var opts = s.join.addresses.map(function (a) { return '<option value="' + a.ip + '"' + (a.ip === cur ? ' selected' : '') + '>' + a.ip + ' (' + esc(a.iface) + ')</option>'; });
     if (cur && !s.join.addresses.some(function (a) { return a.ip === cur; })) opts.unshift('<option selected>' + esc(cur) + '</option>');
-    $('ipSel').innerHTML = opts.join('') || '<option value="">none detected</option>';
+    $('ipSel').innerHTML = opts.join('') || '<option value="">no se detectó ninguna</option>';
   }
 
   fetch(k('/api/host/packs')).then(function (r) { return r.json(); }).then(function (j) {
     $('packSel').innerHTML = j.packs.map(function (p) {
       return '<option value="' + esc(p.id) + '"' + (p.error ? ' disabled' : '') + '>' + esc(p.title) + (p.error ? ' ⚠ ' + esc(p.error) : ' (' + p.count + ')') + '</option>';
-    }).join('') || '<option value="">no packs in /packs</option>';
+    }).join('') || '<option value="">no hay cuestionarios en /packs</option>';
   });
 })();
 </script>

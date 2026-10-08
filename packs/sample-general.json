@@ -1,12 +1,12 @@
 {
-  "title": "Sample · General knowledge",
+  "title": "Ejemplo · Cultura general",
   "time": 20,
   "speedBonus": true,
   "questions": [
-    { "q": "What is the chemical symbol for water?", "choices": ["H2O", "CO2", "O2", "NaCl"], "answer": 0 },
-    { "q": "How many continents are there?", "choices": ["5", "6", "7", "8"], "answer": 2 },
-    { "q": "Which planet is known as the Red Planet?", "choices": ["Venus", "Mars", "Jupiter", "Mercury"], "answer": 1, "time": 15 },
-    { "q": "The Sun is a star.", "choices": ["True", "False"], "answer": 0, "time": 10 },
-    { "q": "12 × 12 = ?", "choices": ["124", "144", "132", "154"], "answer": 1 }
+    { "q": "¿Cuál es la fórmula química del agua?", "choices": ["H2O", "CO2", "O2", "NaCl"], "answer": 0 },
+    { "q": "¿Cuántos continentes hay?", "choices": ["5", "6", "7", "8"], "answer": 2 },
+    { "q": "¿Qué planeta es conocido como el planeta rojo?", "choices": ["Venus", "Marte", "Júpiter", "Mercurio"], "answer": 1, "time": 15 },
+    { "q": "El Sol es una estrella.", "choices": ["Verdadero", "Falso"], "answer": 0, "time": 10 },
+    { "q": "¿En qué año se declaró la independencia argentina?", "choices": ["1810", "1816", "1853", "1880"], "answer": 1 }
   ]
 }

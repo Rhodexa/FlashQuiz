@@ -1,10 +1,10 @@
 {
-  "title": "Sample · Quick math (no speed bonus)",
+  "title": "Ejemplo · Matemática rápida (sin bonus por velocidad)",
   "time": 30,
   "speedBonus": false,
   "questions": [
-    { "q": "What is 15% of 200?", "choices": ["15", "20", "30", "35"], "answer": 2 },
-    { "q": "Solve: 3x + 4 = 19", "choices": ["x = 3", "x = 5", "x = 6", "x = 7"], "answer": 1 },
-    { "q": "Is 91 a prime number?", "choices": ["Yes", "No"], "answer": 1 }
+    { "q": "¿Cuánto es el 15% de 200?", "choices": ["15", "20", "30", "35"], "answer": 2 },
+    { "q": "Resolvé: 3x + 4 = 19", "choices": ["x = 3", "x = 5", "x = 6", "x = 7"], "answer": 1 },
+    { "q": "¿91 es un número primo?", "choices": ["Sí", "No"], "answer": 1 }
   ]
 }

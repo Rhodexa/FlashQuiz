@@ -10,6 +10,10 @@ A real-time classroom quiz that runs entirely on a local network: **one machine 
    phone phone phone     ←—— students open http://<server-ip>:8080/
 ```
 
+## Language
+
+The code, comments and docs are in English. **Everything users see is in Argentine Spanish (es-AR, with voseo)**: pages, buttons, confirmations, error messages shown in the UI, CSV headers and the sample packs. New UI text should follow the same rule. The CSV export uses `;` as its separator, which Spanish-locale Excel expects.
+
 ## Run it
 
 It needs **Node.js 16 or newer** and has **zero npm dependencies**.
@@ -34,6 +38,7 @@ On startup the console prints the student URL and the host key.
 ## Networking notes
 
 - **No mDNS:** the QR code and the big URL on screen use the **raw IP address**, so they work on every phone and hotspot.
+- **Switching networks while the server runs** (for example school Wi-Fi → phone hotspot): the server checks for address changes every 3 seconds and updates the QR code on screen.
 - **Several network interfaces** (Ethernet + Wi-Fi, VPN, Docker): the server picks the likeliest LAN address. To pick another, open **Network** in the control bar or start with `--ip`.
 - **AP is a phone hotspot:** connect the laptop to the hotspot and run the server as usual. In **Network**, enter the hotspot's Wi-Fi name and password. The lobby then shows a **Wi-Fi QR code**, so students can join the network and open the quiz with two scans.
 - **Server running on the hotspot phone itself** (e.g. Node in Termux): Android may block interface detection. Start with `--ip 192.168.43.1` (or whatever the hotspot gateway is). If you open `/host?key=…` through the LAN address, the page uses that address automatically.
