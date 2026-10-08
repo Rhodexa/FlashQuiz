@@ -1,0 +1,47 @@
+{
+  "title": "Quiz de caucho",
+  "time": 25,
+  "speedBonus": true,
+  "questions": [
+    {
+      "q": "¿De qué árbol se obtiene el caucho natural?",
+      "choices": ["Ficus elastica", "Hevea brasiliensis", "Quercus suber"],
+      "answer": 1
+    },
+    {
+      "q": "¿Cómo se llama químicamente el caucho natural?",
+      "choices": ["Poliisopreno", "Polietileno", "Policloruro de vinilo"],
+      "answer": 0
+    },
+    {
+      "q": "¿Quién descubrió la vulcanización y en qué año?",
+      "choices": ["Henry Ford, 1908", "Charles Goodyear, 1839", "Alexander Parkes, 1862"],
+      "answer": 1
+    },
+    {
+      "q": "¿Para qué se usa el azufre en la vulcanización?",
+      "choices": ["Para \"curar\" el caucho y que no se derrita ni se rompa fácil", "Para darle color negro", "Para hacerlo más duro que el metal"],
+      "answer": 0
+    },
+    {
+      "q": "¿Por qué el caucho flota en el agua?",
+      "choices": ["Porque tiene huecos con aire", "Porque es hueco por dentro", "Porque su densidad (0,92-0,96 g/cm³) es menor que la del agua"],
+      "answer": 2
+    },
+    {
+      "q": "¿Por qué se usan guantes y botas de goma para trabajar con electricidad?",
+      "choices": ["Porque es muy pesado", "Porque es buen conductor", "Porque es un aislante eléctrico"],
+      "answer": 2
+    },
+    {
+      "q": "¿De dónde viene el color negro de las cubiertas?",
+      "choices": ["Del color natural del látex", "Del negro de humo agregado como aditivo", "Del azufre"],
+      "answer": 1
+    },
+    {
+      "q": "¿Qué conviene hacer al mecanizar caucho con una máquina?",
+      "choices": ["Cortar a máxima velocidad sin lubricante", "Usar una herramienta sin filo", "Ir a baja velocidad, con herramienta afilada y lubricante"],
+      "answer": 2
+    }
+  ]
+}
