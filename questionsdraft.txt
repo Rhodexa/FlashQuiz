@@ -1,0 +1,41 @@
+Quiz de caucho
+
+1. ¿De qué árbol se obtiene el caucho natural?
+a) Ficus elastica
+b) Hevea brasiliensis
+c) Quercus suber
+
+2. ¿Cómo se llama químicamente el caucho natural?
+a) Poliisopreno
+b) Polietileno
+c) Policloruro de vinilo
+
+3. ¿Quién descubrió la vulcanización y en qué año?
+a) Henry Ford, 1908
+b) Charles Goodyear, 1839
+c) Alexander Parkes, 1862
+
+4. ¿Para qué se usa el azufre en la vulcanización?
+a) Para "curar" el caucho y que no se derrita ni se rompa fácil
+b) Para darle color negro
+c) Para hacerlo más duro que el metal
+
+5. ¿Por qué el caucho flota en el agua?
+a) Porque tiene huecos con aire
+b) Porque es hueco por dentro
+c) Porque su densidad (0,92-0,96 g/cm³) es menor que la del agua
+
+6. ¿Por qué se usan guantes y botas de goma para trabajar con electricidad?
+a) Porque es muy pesado
+b) Porque es buen conductor
+c) Porque es un aislante eléctrico
+
+7. ¿De dónde viene el color negro de las cubiertas?
+a) Del color natural del látex
+b) Del negro de humo agregado como aditivo
+c) Del azufre
+
+8. ¿Qué conviene hacer al mecanizar caucho con una máquina?
+a) Cortar a máxima velocidad sin lubricante
+b) Usar una herramienta sin filo
+c) Ir a baja velocidad, con herramienta afilada y lubricante
