@@ -3,7 +3,7 @@
 A real-time classroom quiz that runs entirely on a local network: **one machine runs the server, one Wi-Fi access point (it can be a phone hotspot), and students join from their phones** by scanning a QR code. You don't need internet, accounts, or an install step on the phones.
 
 ```
- [ Projector / laptop ]  ←—— runs server.js, shows /host (main display + controls)
+ [ Projector / laptop ]  ←—— runs server.py, shows /host (main display + controls)
           │
      Wi-Fi AP (router or phone hotspot)
      │     │     │
@@ -16,12 +16,16 @@ The code, comments and docs are in English. **Everything users see is in Argenti
 
 ## Run it
 
-It needs **Node.js 16 or newer** and has **zero npm dependencies**.
+It needs **Python 3.7 or newer** and nothing else: no `pip install`, standard library only.
 
 ```bash
 git clone <this-repo> flashquiz && cd flashquiz
-node server.js                 # or: npm start
+python server.py               # Windows: double-click start.bat, or: py server.py
 ```
+
+On Windows, install Python from python.org (tick **Add python.exe to PATH**) or the Microsoft Store. `start.bat` keeps the console window open so you can read the join URL and any errors.
+
+The original Node.js server (`node server.js`, Node 16+) is still there and behaves the same way. Both serve the same pages and packs, so use whichever runtime the machine has.
 
 Then open **http://localhost:8080/host** on the machine connected to the projector.
 
@@ -41,8 +45,8 @@ On startup the console prints the student URL and the host key.
 - **Switching networks while the server runs** (for example school Wi-Fi → phone hotspot): the server checks for address changes every 3 seconds and updates the QR code on screen.
 - **Several network interfaces** (Ethernet + Wi-Fi, VPN, Docker): the server picks the likeliest LAN address. To pick another, open **Network** in the control bar or start with `--ip`.
 - **AP is a phone hotspot:** connect the laptop to the hotspot and run the server as usual. In **Network**, enter the hotspot's Wi-Fi name and password. The lobby then shows a **Wi-Fi QR code**, so students can join the network and open the quiz with two scans.
-- **Server running on the hotspot phone itself** (e.g. Node in Termux): Android may block interface detection. Start with `--ip 192.168.43.1` (or whatever the hotspot gateway is). If you open `/host?key=…` through the LAN address, the page uses that address automatically.
-- **Firewall:** allow incoming TCP on the port. On Fedora: `sudo firewall-cmd --add-port=8080/tcp`. On Windows, accept the prompt the first time it appears.
+- **Server running on the hotspot phone itself** (e.g. Python or Node in Termux): Android may block interface detection. Start with `--ip 192.168.43.1` (or whatever the hotspot gateway is). If you open `/host?key=…` through the LAN address, the page uses that address automatically.
+- **Firewall:** allow incoming TCP on the port. On Fedora: `sudo firewall-cmd --add-port=8080/tcp`. On Windows, accept the prompt the first time it appears, and tick **Private networks**. If the classroom network is marked Public in Windows, tick that too or phones won't connect.
 - **"Client isolation" / "AP isolation":** some routers and hotspots block phones from talking to each other. If phones can't load the page, turn this setting off on the AP.
 
 ## Using it in class
@@ -82,14 +86,17 @@ Put `.json` files in [`packs/`](packs/). They're read each time the list loads, 
 
 - **Transport:** Server-Sent Events going down and small POST requests going up. SSE works in every phone browser and reconnects by itself after a phone sleeps, and it doesn't need a WebSocket library. The host display gets at most about 8 updates per second, even if the whole class answers at once.
 - **Colorblind-safe:** choices use the Okabe-Ito palette, and each one also has a **shape and a letter** (▲A ◆B ●C ■D). "Correct" and "wrong" are shown with ✓/✗ and words, never with color alone, and red/green is never used as a pair.
-- **Low-end devices:** no frameworks, web fonts, shadows, or blur. The only animation is one CSS transform for the timer bar. The QR codes are SVGs generated on the server ([`lib/qr.js`](lib/qr.js)) and work offline.
+- **Low-end devices:** no frameworks, web fonts, shadows, or blur. The only animation is one CSS transform for the timer bar. The QR codes are SVGs generated on the server ([`lib/qr.py`](lib/qr.py), [`lib/qr.js`](lib/qr.js)) and work offline.
 - **Host protection:** control endpoints only accept requests from the server machine (localhost) or ones that carry the host key, so students can't press "Next".
 
 ## Project layout
 
 ```
-server.js          HTTP server, game state, SSE, host API, CSV export
-lib/qr.js          dependency-free QR encoder (byte mode, ECC M, v1–10)
+server.py          HTTP server, game state, SSE, host API, CSV export (Python)
+server.js          same server for Node.js
+start.bat          Windows double-click launcher for server.py
+lib/qr.py          dependency-free QR encoder (byte mode, ECC M, v1–10)
+lib/qr.js          same encoder for Node.js
 public/host.html   main display + control panel
 public/play.html   student client
 public/common.css  shared styles / palette
